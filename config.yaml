@@ -1,39 +1,13 @@
 samples: samples.tsv
 units: units.tsv
 
-restriction_enzymes: ['DPnII', 'HinfI']
-
 params:
   general:
     end1_suffix: "_1"
     end2_suffix: "_2"
     alignment_quality: "10"
-  hicpro:
-    install_dir:
-      gadi: "/home/150/sxk150/software/bin/HiC-Pro_2.11.1"
-    cutsite_trimming:
-      ligation_site: 
-        HindIII : "AAGCTAGCTT"
-        DpnII_HinfI : "GATCGATC,GANTANTC"
-
-  hicexplorer:
-    genome_fasta:
-      shiny: ""
-      gdu: "/home/skurscheid/Data/References/Genomes/Homo_sapiens/GRCh38_ensembl84/genome.fa"
-      gadi: "~/data/References/Genomes/Homo_sapiens/GRCh38_ensembl84/canonical/genome.fa"
-    hicBuildMatrix:
-      genomeAssembly: "GRCh38"
-      HindIII:
-        restrictionSequence: "AAGCTT"
-        danglingSequence: "AGCT"
-    findRestSites:
-      HindIII : "AAGCTT"
-      DpnII: "GATC"
-      HinfI: "GA.TC"
   bowtie2:
-    cli_params_global: "--very-sensitive -L 30 --score-min L,-0.6,-0.2 --end-to-end --reorder"
-    cli_params_local: "--very-sensitive -L 20 --score-min L,-0.6,-0.2 --end-to-end --reorder"
-    cli_params_global_chip: "--very-sensitive --end-to-end"
+    cli_params_global: "--very-sensitive --end-to-end"
     index:
       shiny: ""
       gdu: "/home/skurscheid/Data/References/Genomes/Homo_sapiens/GRCh38_ensembl84/canonical/index/hg38_ensembl84"

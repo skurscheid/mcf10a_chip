@@ -14,8 +14,7 @@ min_version("5.1.2")
 
 #configfile: "config.yaml"
 
-runTable = pd.read_csv("SraRunTable.csv", sep = ",")
-rest_enzyme = config['rest_enzyme']
+runTable = pd.read_csv("ChIPRunTable.csv", sep = ",")
 machine = config['machine']
 
 ##### load additional functions #####
@@ -39,116 +38,14 @@ rule all_trim:
                 file = make_targets_from_runTable(runTable),
                 end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]])
 
-rule all_align_global:
+rule all_align:
     input:
-        expand("bowtie2/align_global/se/{file}{end}.bam",
-                file = make_targets_from_runTable(runTable),
-                end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]]),
-        expand("bowtie2/align_global/se/{file}{end}.unmap.fastq",
-                file = make_targets_from_runTable(runTable),
-                end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]])
-
-rule all_align_local:
-    input:
-        expand("bowtie2/align_local/se/{file}{end}.bam",
-                file = make_targets_from_runTable(runTable),
-                end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]]),
-        expand("bowtie2/align_local/se/{file}{end}.unmap.fastq",
-                file = make_targets_from_runTable(runTable)[3],
-                end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]])
-
-rule all_merge_local_global:
-    input:
-        expand("samtools/merge/pe/{file}{end}.bam",
-                file = make_targets_from_runTable(runTable),
-                end = [config["params"]["general"]["end1_suffix"], config["params"]["general"]["end2_suffix"]])
-
-rule all_combine_bam_files:
-    input:
-        expand("mergeSam/combine/pe/{file}.bam",
-               file = make_targets_from_runTable(runTable))
-
-rule all_hicBuildMatrix_bin_test_run:
-    input:
-        expand("hicexplorer/hicBuildMatrix_bin/test_run/{resolution}/{file}_hic_matrix.{ext}",
-               resolution = "20000",
-               file = make_targets_from_runTable(runTable),
-               ext = ["h5", "bam"])
-
-rule all_hicBuildMatrix_rest_test_run:
-    input:
-        expand("hicexplorer/hicBuildMatrix_rest/test_run/{res_enzyme}/{file}_hic_matrix.{ext}",
-               res_enzyme = "HindIII",
-               file = make_targets_from_runTable(runTable),
-               ext = ["h5", "bam"])
-               
-rule all_hicBuildMatrix_bin:
-    input:
-        expand("hicexplorer/hicBuildMatrix_bin/{resolution}/{file}_hic_matrix.{ext}",
-               resolution = "20000",
-               file = make_targets_from_runTable(runTable),
-               ext = ["h5"]),
-
-rule all_hicBuildMatrix_bin_mcool:
-    input:
-        expand('hicexplorer/hicBuildMatrix_bin/multi_resolution/{file}_hic_matrix.mcool',
-               file = make_targets_from_runTable(runTable))
- 
-
-rule all_hicBuildMatrix_rest:
-    input:
-        expand("hicexplorer/hicBuildMatrix_rest/{res_enzyme}/{file}_hic_matrix.{ext}",
-               res_enzyme = "HindIII",
-               file = make_targets_from_runTable(runTable),
-               ext = ["h5", "bam"])
-
-rule all_hicQC_rest:
-    input:
-        expand('hicexplorer/hicQC/hicBuildMatrix_rest/HindIII/{biosample}/',
-                biosample = list(pd.unique(runTable.BioSample)))
-
-rule all_hicQC_bin:
-    input:
-        expand('hicexplorer/hicQC/hicBuildMatrix_bin/20000/{biosample}/',
-                biosample = list(pd.unique(runTable.BioSample)))
-
-rule all_hicCorrelate_rest:
-    input:
-        expand('hicexplorer/hicCorrelate/hicBuildMatrix_rest/HindIII/{biosample}_scatter.pdf',
-                biosample = list(pd.unique(runTable.BioSample)))
-
-rule all_hicCorrelate_bin:
-    input:
-        expand('hicexplorer/hicCorrelate/hicBuildMatrix_bin/20000/{biosample}_scatter.pdf',
-                biosample = list(pd.unique(runTable.BioSample)))
-
-
+        expand("samtools/rmdup/pe/{file}.bam.bai",
+        {biosample}/{library_type}/{replicate}/{run}
+                file = make_targets_from_runTable(runTable))
 
 ##### rules for extended trial runs #####
-trial_samples = ['SAMN08446098/rep1/SRR6657510', 'SAMN08446098/rep1/SRR6657511',
-                 'SAMN08446098/rep1/SRR6657512', 'SAMN08446098/rep1/SRR6657513',
-                 'SAMN08446098/rep1/SRR6657514', 'SAMN08446097/rep2/SRR6657515',
-                 'SAMN08446097/rep2/SRR6657516', 'SAMN08446097/rep2/SRR6657517',
-                 'SAMN08446097/rep2/SRR6657518', 'SAMN08446097/rep2/SRR6657519']
-
-rule trial_hicBuildMatrix_rest:
-    input:
-        expand("hicexplorer/hicBuildMatrix_rest/{res_enzyme}/{file}_hic_matrix.{ext}",
-               res_enzyme = "HindIII",
-               file = trial_samples,
-               ext = ["h5", "bam"])
-
-rule trial_combine_bam_files:
-    input:
-        expand("mergeSam/combine/pe/{file}.bam",
-               file = make_targets_from_runTable(runTable)[0])
-
-rule trial_hicBuildMatrix_bin_mcool:
-    input:
-        expand('hicexplorer/hicBuildMatrix_bin/multi_resolution/{file}_hic_matrix.mcool',
-               file = make_targets_from_runTable(runTable)[0])
 
 ##### load additional workflow rules #####
 include: "rules/fastp.smk"
 include: "rules/align.smk"
-include: "rules/hicexplorer.smk"

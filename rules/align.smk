@@ -16,157 +16,125 @@ def get_index(machine, config):
 
 singularity: "docker://skurscheid/snakemake_baseimage:0.2"
 
-rule bowtie2_se_global:
-    """ runs alignment of single-end fastq file, modified parameters specific for HiC data"""
+rule bowtie2_pe_global:
+    """ runs alignment of paired-end fastq files"""
     conda:
-        "../envs/fastqProcessing.yaml"
+        "../envs/alignment.yaml"
     threads:
-        8
+        12
     params:
+        fastq_suffix = ['.end1.fastq.gz', '.end2.fastq.gz']
         index = get_index(machine, config),
         cli_params_global = config['params']['bowtie2']['cli_params_global'],
         samtools_params_global = "-F 4 -bS"
     log:
-        log = "logs/bowtie2_global/{biosample}/{rep}/{run}{end}.log"
+        logfile = "logs/bowtie2_global/pe/{biosample}/{library_type}/{replicate}/{run}.log"
     input:
-        fq = "fastp/trimmed/pe/{biosample}/{rep}/{run}{end}.fastq.gz"
+        rules.run_fastp_pe.output.out1, rules.run_fastp_pe.output.out2
     output:
-        bam = "bowtie2/align_global/se/{biosample}/{rep}/{run}{end}.bam",
-        unmapped = "bowtie2/align_global/se/{biosample}/{rep}/{run}{end}.unmap.fastq"
+        bam = temp("bowtie2/align_global/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
     shell:
         """
+            export cli_threads=$(expr {threads} - 2);\
             bowtie2\
                     -x {params.index}\
-                    -p {threads}\
-                    -U {input.fq}\
+                    -p $cli_threads\
+                    -1 {input[0]} -2 {input[1]}\
                     {params.cli_params_global}\
-                    --un {output.unmapped}\
                     --rg-id BMG\
-                    --rg SM:{wildcards.run}{wildcards.end}\
-                    2>> {log.log}\
+                    --rg SM:{wildcards.run}:{wildcards.biosample}:{wildcards.library_type}:{wildcards.replicate}\
+                    2>> {log.logfile}\
             | samtools view {params.samtools_params_global} - > {output.bam}
         """
-
-rule cutsite_trimming:
-    """trims potentially chimeric reads prior to second alignment"""
-    version:
-        1
-    threads:
-        1
-    params:
-        hicpro_dir = config['params']['hicpro']['install_dir'][machine],
-        cutsite = config['params']['hicpro']['cutsite_trimming']['ligation_site'][rest_enzyme]
-    log:
-        log = "logs/cutsite_trimming/{biosample}/{rep}/{run}{end}.log"
-    input:
-        rules.bowtie2_se_global.output.unmapped
-    output:
-        cutsite_trimmed = temp("cutsite_trimming/{biosample}/{rep}/{run}{end}.fastq")
-    shell:
-        """ 
-            {params.hicpro_dir}/scripts/cutsite_trimming --fastq {input} --cutsite {params.cutsite} --out {output}
-        """
-
-rule bowtie2_se_local:
-    """ runs alignment of single-end fastq file, modified parameters specific for HiC data"""
-    version:
-        1
+        
+rule bam_quality_filter:
     conda:
-        "../envs/fastqProcessing.yaml"
-    threads:
-        8
-    params:
-        index = get_index(machine, config),
-        cli_params_local = config['params']['bowtie2']['cli_params_local'],
-        samtools_params_local = "-bS"
-    log:
-        log = "logs/bowtie2_local/{biosample}/{rep}/{run}{end}.log"
-    input:
-        fq = rules.cutsite_trimming.output
-    output:
-        bam = "bowtie2/align_local/se/{biosample}/{rep}/{run}{end}.bam"
-    shell:
-        """
-            bowtie2\
-                    -x {params.index}\
-                    -p {threads}\
-                    -U {input.fq}\
-                    {params.cli_params_local}\
-                    --rg-id BML\
-                    --rg SM:{wildcards.run}{wildcards.end}:local_step\
-                    2>{log.log}\
-            | samtools view {params.samtools_params_local} - > {output.bam}
-        """
-
-rule samtools_merge_local_global:
-    """ merges BAM files from global and local alignmnent steps """
+        "../envs/alignment.yaml"
     version:
-        1
-    conda:
-        "../envs/hicpro.yaml"
-    threads:
-        8
+        "1.0"
     group:
-        "post_alignment"
-    params:
+        "alignment_post"
     log:
-        log = "logs/samtools_merge/{biosample}/{rep}/{run}{end}.log"
+        logfile = "logs/samtools/quality_filtered/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+    params:
+        qual = config["params"]["general"]["alignment_quality"]
     input:
-        bam1 = rules.bowtie2_se_global.output.bam,
-        bam2 = rules.bowtie2_se_local.output.bam
+        rules.bowtie2_pe_global.output
     output:
-        mergedBam = "samtools/merge/se/{biosample}/{rep}/{run}{end}.bam"
+        temp("samtools/quality_filtered/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
+    shell:
+        "samtools view -b -h -q {params.qual} {input} > {output} 2>{log.logfile}"
+
+rule bam_sort:
+    conda:
+        "../envs/alignment.yaml"
+    version:
+        "1.0"
+    threads:
+        4
+    group:
+        "alignment_post"
+    log:
+        logfile = "logs/samtools/sort/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+    input:
+        rules.bam_quality_filter.output
+    output:
+        temp("samtools/sort/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
+    shell:
+        "samtools sort -@ {threads} {input} -T {wildcards.run}.sorted -o {output}"
+
+rule bam_mark_duplicates:
+    conda:
+        "../envs/alignment.yaml"
+    version:
+        "1.0"
+    group:
+        "alignment_post"
+    log:
+        logfile = "logs/picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+    threads:
+        4
+    params:
+        temp = config["params"]["general"]["temp_dir"]["shiny"]
+    input:
+        rules.bam_sort.output
+    output:
+        out= temp("picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.bam"),
+        metrics = "picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.metrics.txt"
     shell:
         """
-            samtools merge -@ {threads} -n -f {output.mergedBam} {input.bam1} {input.bam2} 2>{log.log}
+            picard MarkDuplicates -XX:ParallelGCThreads={threads} -Xms2g -Xmx8g\
+            INPUT={input}\
+            OUTPUT={output.out}\
+            ASSUME_SORTED=TRUE\
+            METRICS_FILE={output.metrics} 2>{log.logfile}
         """
 
-rule samtools_sort_merged_bam:
-    """ sorts the BAM files from merge step - based on HiC-Pro pipeline """
-    version:
-        1
+rule bam_rmdup:
     conda:
-        "../envs/hicpro.yaml"
-    threads:
-        8
+        "../envs/alignment.yaml"
     group:
-        "post_alignment"
-    params:
-        tempPrefix = "temp/{run}{end}"
+        "alignment_post"
     log:
-        log = "logs/samtools_sort/{biosample}/{rep}/{run}{end}.log"
+        logfile = "logs/samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.log"
     input:
-        rules.samtools_merge_local_global.output.mergedBam
+        rules.bam_mark_duplicates.output.out
     output:
-        sortedBam = "samtools/sort/se/{biosample}/{rep}/{run}{end}.bam"
+        "samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.bam"
     shell:
-        """
-            samtools sort -@ {threads} -n -T {params.tempPrefix} -o {output.sortedBam} {input} 2>{log.log}
-        """
+        "samtools rmdup -s {input} {output} 2>{log.logfile}"
 
-rule combine_bam_files:
-    """ combines SE BAM files to a single PE BAM file with additional filtering - based on HiC-Pro pipeline """
-    version:
-        1
+rule bam_index:
     conda:
-        "../envs/hicpro.yaml"
-    threads:
-        2
+        "../envs/alignment.yaml"
     group:
-        "post_alignment"
-    params:
-        hicpro_dir = config['params']['hicpro']['install_dir'][machine],
-        qual = config['params']['general']['alignment_quality']
+        "alignment_post"
     log:
-        log = "logs/mergeSAM/{biosample}/{rep}/{run}.log",
-        stat = "mergeSam/combine/pe/{biosample}/{rep}/{run}_stats.txt"
+        logfile = "logs/samtools/index/pe/{biosample}/{library_type}/{replicate}/{run}.log"
     input:
-        bam1 = lambda wildcards: "/".join(["samtools", "sort", "se", wildcards["biosample"], wildcards["rep"], wildcards["run"]]) + config["params"]["general"]["end1_suffix"] + ".bam",
-        bam2 = lambda wildcards: "/".join(["samtools", "sort", "se", wildcards["biosample"], wildcards["rep"], wildcards["run"]]) + config["params"]["general"]["end2_suffix"] + ".bam"
+        rules.bam_rmdup.output
     output:
-        combinedBam = "mergeSam/combine/pe/{biosample}/{rep}/{run}.bam"
+        "samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.bam.bai"
     shell:
-        """ 
-            python {params.hicpro_dir}/scripts/mergeSAM.py -q {params.qual} -f {input.bam1} -r {input.bam2} -o {output.combinedBam} -t {log.stat} 2>{log.log}
-        """
+        "samtools index {input} {output} 2>{log.logfile}"
 

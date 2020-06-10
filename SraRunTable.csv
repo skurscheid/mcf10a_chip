@@ -1,5 +1,0 @@
-Run,BioSample,Cell_type,Experiment,Sample Name,source_name,SRA Study,time_point,replicate
-ARIMA001,MCF10AWT1,Breast epithelial cells WT,SRX9999999,HiC_1_10A_S1,Cultured human breast epithelial cell,SRP999999,Day x,rep1
-ARIMA002,MCF10AWT1,Breast epithelial cells WT,SRX9999999,HiC_2_10A_S2,Cultured human breast epithelial cell,SRP999999,Day x,rep2
-ARIMA003,MCF10AHP1AKD,Breast epithelial cells HP1-alpha knockdown,SRX9999999,HiC_3_10_alpha_S3,Cultured human breast epithelial cell,SRP999999,Day x,rep1
-ARIMA004,MCF10AHP1AKD,Breast epithelial cells HP1-alpha knockdown,SRX9999999,HiC_4_10_alpha_S4,Cultured human breast epithelial cell,SRP999999,Day x,rep2

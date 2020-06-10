@@ -1,8 +1,8 @@
 {
     "__default__" :
     {
-        "P" : "pb97",
-        "queue" : "biodev",
+        "P" : "zi26",
+        "queue" : "normal",
         "std1_out_dir" : "/home/150/sxk150/qsub_out",
         "error_out_dir" : "/home/150/sxk150/qsub_error",
         "M" : "skurscheid@gmail.com",

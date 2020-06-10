@@ -7,7 +7,7 @@ import pandas as pd
 def make_targets_from_runTable(runTable):
     t = []
     for index, row in runTable.iterrows():
-        e = list(row[['BioSample', 'replicate', 'Run']])
+        e = list(row[['BioSample', 'library_type', 'replicate', 'Run']])
         p = "/".join(e)
         t.append(p)
     return(t)
@@ -25,7 +25,7 @@ def create_testing_input(base_path, units):
 def fastp_input(runTable, wildcards):
     """function for creating gathering input files for fastp processing"""
     t = []
-    row = runTable.loc[(runTable.Run == wildcards['Run']) & (runTable.BioSample == wildcards['BioSample']) & (runTable.replicate == wildcards['replicate'])]
+    row = runTable.loc[(runTable.Run == wildcards['Run']) & (runTable.BioSample == wildcards['BioSample']) & (runTable.replicate == wildcards['replicate']) & (runTable.library_type == wildcards['library_type'])]
     fq1, fq2 = row['fq1'].to_string(index=False), row['fq2'].to_string(index=False)
     t.append(fq1)
     t.append(fq2)
