@@ -41,10 +41,7 @@ rule all_trim:
 rule all_align:
     input:
         expand("samtools/rmdup/pe/{file}.bam.bai",
-        {biosample}/{library_type}/{replicate}/{run}
                 file = make_targets_from_runTable(runTable))
-
-##### rules for extended trial runs #####
 
 ##### load additional workflow rules #####
 include: "rules/fastp.smk"
