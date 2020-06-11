@@ -27,8 +27,8 @@ def fastp_input(runTable, wildcards):
     t = []
     row = runTable.loc[(runTable.Run == wildcards['Run']) & (runTable.BioSample == wildcards['BioSample']) & (runTable.replicate == wildcards['rep']) & (runTable.library_type == wildcards['library_type'])]
     fq1, fq2 = row['fq1'].to_string(index=False), row['fq2'].to_string(index=False)
-    t.append(fq1)
-    t.append(fq2)
+    t.append(fq1.strip())
+    t.append(fq2.strip())
     return(t)
 
 def fastp_targets(units):
