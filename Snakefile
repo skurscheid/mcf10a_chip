@@ -21,6 +21,10 @@ machine = config['machine']
 
 include: "scripts/helper.py"
 
+##### load additional workflow rules #####
+include: "rules/fastp.smk"
+include: "rules/align.smk"
+
 ##### global variables/constraints #####
 wildcard_constraints:
     run="[^_]*",
@@ -43,6 +47,3 @@ rule all_align:
         expand("samtools/rmdup/pe/{file}.bam.bai", file = make_targets_from_runTable(runTable))
 
 
-##### load additional workflow rules #####
-include: "rules/fastp.smk"
-include: "rules/align.smk"
