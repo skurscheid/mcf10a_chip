@@ -79,12 +79,14 @@ rule bam_sort:
         "alignment_post"
     log:
         logfile = "logs/samtools/sort/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
+    params:
+        temp_dir = 'temp/'
     input:
         rules.bam_quality_filter.output
     output:
         temp("samtools/sort/pe/{BioSample}/{library_type}/{rep}/{Run}.bam")
     shell:
-        "samtools sort -@ {threads} {input} -T {wildcards.Run}.sorted -o {output}"
+        "samtools sort -@ {threads} {input} -T {params.temp_dir}{wildcards.BioSample}{wildcards.rep}{wildcards.Run}.sorted -o {output}"
 
 rule bam_mark_duplicates:
     conda:
