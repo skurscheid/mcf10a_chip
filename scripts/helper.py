@@ -30,10 +30,3 @@ def fastp_input(runTable, wildcards):
     t.append(fq1.strip())
     t.append(fq2.strip())
     return(t)
-
-def fastp_targets(units):
-    """function for creating snakemake targets for executing fastp rule"""
-    t = []
-    for index, row in units.iterrows():
-        t.append(row['batch'] + "/" + row['sample_id'] + "_" + row['lane'] + "_" + str(row['replicate']))
-    return(t)
