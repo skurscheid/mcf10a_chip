@@ -21,7 +21,7 @@ rule run_fastp_pe:
     log:
         log = "logs/fastp/pe/{biosample}/{library_type}/{replicate}/{run}.log"
     input:
-        unpack(fastp_input)
+        fastp_input
     output:
         out1 = "fastp/trimmed/pe/{biosample}/{library_type}/{replicate}/{run}_1.fastq.gz",
         out2 = "fastp/trimmed/pe/{biosample}/{library_type}/{replicate}/{run}_2.fastq.gz",
@@ -29,7 +29,7 @@ rule run_fastp_pe:
         report_json = "fastp/report/pe/{biosample}/{library_type}/{replicate}/{run}.fastp.json"
     shell:
         """
-            fastp -i {input.fq1} -I {input.fq2}\
+            fastp -i {input[0]} -I {input[1]}\
                   -o {output.out1} -O {output.out2}\
                   --html {output.report_html} --json {output.report_json}\
                   --length_required 30\

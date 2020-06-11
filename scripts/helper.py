@@ -22,11 +22,6 @@ def create_testing_input(base_path, units):
         fq2.touch(exist_ok = True)
 
 # functions for fastp rules
-def fastp_input(runTable, wildcards):
+def fastp_input(wildcards, runTable):
     """function for creating gathering input files for fastp processing"""
-    t = {}
-    row = runTable.loc[(runTable.Run == wildcards['Run']) & (runTable.BioSample == wildcards['BioSample']) & (runTable.replicate == wildcards['rep']) & (runTable.library_type == wildcards['library_type'])]
-    fq1, fq2 = row['fq1'].to_string(index=False), row['fq2'].to_string(index=False)
-    t['fq1'] = 'raw/' + fq1.strip()
-    t['fq2'] = 'raw/' + fq2.strip()
-    return(t)
+    return(runTable.loc[(runTable.Run == wildcards['Run']) & (runTable.BioSample == wildcards['BioSample']) & (runTable.replicate == wildcards['rep']) & (runTable.library_type == wildcards['library_type']), ['fq1', 'fq2']].values.tolist())
