@@ -12,7 +12,7 @@ min_version("5.1.2")
 
 ##### load codMCF10AshZsheets #####
 
-#configfile: "config.yaml"
+configfile: "config.yaml"
 
 runTable = pd.read_csv("ChIPRunTable.csv", sep = ",")
 machine = config['machine']
