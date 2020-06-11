@@ -21,7 +21,9 @@ rule run_fastp_pe:
     log:
         log = "logs/fastp/pe/{biosample}/{library_type}/{replicate}/{run}.log"
     input:
-        unpack(fastp_input)
+        #unpack(fastp_input)
+        fq1 = 'raw/SN501_0087_DTremethick_JCSMR_MCF10A_ChIPSeq/H2AZ_TGFb_10A_high_rep2/Florida_10_S5_R1_001.fastq.gz',
+        fq2 = 'raw/SN501_0087_DTremethick_JCSMR_MCF10A_ChIPSeq/H2AZ_TGFb_10A_high_rep2/Florida_10_S5_R2_001.fastq.gz'
     output:
         out1 = "fastp/trimmed/pe/{biosample}/{library_type}/{replicate}/{run}_1.fastq.gz",
         out2 = "fastp/trimmed/pe/{biosample}/{library_type}/{replicate}/{run}_2.fastq.gz",
