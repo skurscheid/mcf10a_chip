@@ -1,3 +1,6 @@
+# vim: syntax=python tabstop=4 expandtab
+# coding: utf-8
+
 __author__ = "Sebastian Kurscheid (sebastian.kurscheid@anu.edu.au)"
 __license__ = "MIT"
 __date__ = "2020-02-04"
@@ -23,7 +26,7 @@ rule bowtie2_pe_global:
     threads:
         12
     params:
-        fastq_suffix = ['.end1.fastq.gz', '.end2.fastq.gz']
+        fastq_suffix = ['.end1.fastq.gz', '.end2.fastq.gz'],
         index = get_index(machine, config),
         cli_params_global = config['params']['bowtie2']['cli_params_global'],
         samtools_params_global = "-F 4 -bS"
@@ -95,7 +98,7 @@ rule bam_mark_duplicates:
     threads:
         4
     params:
-        temp = config["params"]["general"]["temp_dir"]["shiny"]
+        temp = "temp"
     input:
         rules.bam_sort.output
     output:

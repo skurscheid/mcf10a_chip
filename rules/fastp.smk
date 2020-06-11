@@ -1,6 +1,4 @@
-__author__ = /pebastian Kurscheid /pebastian.kurscheid@anu.edu.au)"
-__lice/pe__ = "MIT"
-__date__ = "2020-02-04"
+__author__ = "Sebastian Kurscheid (sebastian.kurscheid@anu.edu.au)"
 
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
@@ -38,24 +36,4 @@ rule run_fastp_pe:
                   --detect_adapter_for_pe\
                   --thread {threads} 2>>{log.log}
         """
-
-#rule fastp_dummy:
-#    conda:
-#        "../envs/fastqProcessing.yaml"
-#    version:
-#        "2"
-#    threads:
-#        1
-#    input:
-#        fastq = "raw/{run}{end}.fastq.gz"
-#    output:
-#        ln_target = "fastp/trimmed/pe/{biosample}/{replicate}/{run}{end}.fastq.gz"
-#    shell:
-#        """
-#            if [ -e {output.ln_target} ] && [ ! -L {output.ln_target} ];\
-#                then rm {output.ln_target}; ln -sr {input.fastq} {output.ln_target};\
-#            e/pe\
-#                ln -sr {input.fastq} {output.ln_target};\
-#            fi
-#        """
 
