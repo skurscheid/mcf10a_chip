@@ -22,9 +22,9 @@ machine = config['machine']
 include: "scripts/helper.py"
 
 ##### global variables/constraints #####
-wildcard_constraints:
-    run="[^_]*",
-    resolution="\d+"
+#wildcard_constraints:
+#    run="[^_]*",
+#    resolution="\d+"
 
 ##### build targets #####
 #rule all:

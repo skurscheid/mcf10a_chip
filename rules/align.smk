@@ -20,7 +20,7 @@ def get_index(machine, config):
 singularity: "docker://skurscheid/snakemake_baseimage:0.2"
 
 rule bowtie2_pe_global:
-    """ runs alignment of paired-end fastq files"""
+    """ Runs alignment of paired-end fastq files"""
     conda:
         "../envs/alignment.yaml"
     threads:
@@ -31,11 +31,11 @@ rule bowtie2_pe_global:
         cli_params_global = config['params']['bowtie2']['cli_params_global'],
         samtools_params_global = "-F 4 -bS"
     log:
-        logfile = "logs/bowtie2_global/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/bowtie2_global/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     input:
         rules.run_fastp_pe.output.out1, rules.run_fastp_pe.output.out2
     output:
-        bam = temp("bowtie2/align_global/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
+        bam = temp("bowtie2/align_global/pe/{BioSample}/{library_type}/{rep}/{Run}.bam")
     shell:
         """
             export cli_threads=$(expr {threads} - 2);\
@@ -45,7 +45,7 @@ rule bowtie2_pe_global:
                     -1 {input[0]} -2 {input[1]}\
                     {params.cli_params_global}\
                     --rg-id BMG\
-                    --rg SM:{wildcards.run}:{wildcards.biosample}:{wildcards.library_type}:{wildcards.replicate}\
+                    --rg SM:{wildcards.Run}:{wildcards.BioSample}:{wildcards.library_type}:{wildcards.rep}\
                     2>> {log.logfile}\
             | samtools view {params.samtools_params_global} - > {output.bam}
         """
@@ -58,13 +58,13 @@ rule bam_quality_filter:
     group:
         "alignment_post"
     log:
-        logfile = "logs/samtools/quality_filtered/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/samtools/quality_filtered/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     params:
         qual = config["params"]["general"]["alignment_quality"]
     input:
         rules.bowtie2_pe_global.output
     output:
-        temp("samtools/quality_filtered/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
+        temp("samtools/quality_filtered/pe/{BioSample}/{library_type}/{rep}/{Run}.bam")
     shell:
         "samtools view -b -h -q {params.qual} {input} > {output} 2>{log.logfile}"
 
@@ -78,13 +78,13 @@ rule bam_sort:
     group:
         "alignment_post"
     log:
-        logfile = "logs/samtools/sort/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/samtools/sort/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     input:
         rules.bam_quality_filter.output
     output:
-        temp("samtools/sort/pe/{biosample}/{library_type}/{replicate}/{run}.bam")
+        temp("samtools/sort/pe/{BioSample}/{library_type}/{rep}/{Run}.bam")
     shell:
-        "samtools sort -@ {threads} {input} -T {wildcards.run}.sorted -o {output}"
+        "samtools sort -@ {threads} {input} -T {wildcards.Run}.sorted -o {output}"
 
 rule bam_mark_duplicates:
     conda:
@@ -94,7 +94,7 @@ rule bam_mark_duplicates:
     group:
         "alignment_post"
     log:
-        logfile = "logs/picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/picardTools/MarkDuplicates/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     threads:
         4
     params:
@@ -102,8 +102,8 @@ rule bam_mark_duplicates:
     input:
         rules.bam_sort.output
     output:
-        out= temp("picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.bam"),
-        metrics = "picardTools/MarkDuplicates/pe/{biosample}/{library_type}/{replicate}/{run}.metrics.txt"
+        out= temp("picardTools/MarkDuplicates/pe/{BioSample}/{library_type}/{rep}/{Run}.bam"),
+        metrics = "picardTools/MarkDuplicates/pe/{BioSample}/{library_type}/{rep}/{Run}.metrics.txt"
     shell:
         """
             picard MarkDuplicates -XX:ParallelGCThreads={threads} -Xms2g -Xmx8g\
@@ -119,11 +119,11 @@ rule bam_rmdup:
     group:
         "alignment_post"
     log:
-        logfile = "logs/samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/samtools/rmdup/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     input:
         rules.bam_mark_duplicates.output.out
     output:
-        "samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.bam"
+        "samtools/rmdup/pe/{BioSample}/{library_type}/{rep}/{Run}.bam"
     shell:
         "samtools rmdup -s {input} {output} 2>{log.logfile}"
 
@@ -133,11 +133,11 @@ rule bam_index:
     group:
         "alignment_post"
     log:
-        logfile = "logs/samtools/index/pe/{biosample}/{library_type}/{replicate}/{run}.log"
+        logfile = "logs/samtools/index/pe/{BioSample}/{library_type}/{rep}/{Run}.log"
     input:
         rules.bam_rmdup.output
     output:
-        "samtools/rmdup/pe/{biosample}/{library_type}/{replicate}/{run}.bam.bai"
+        "samtools/rmdup/pe/{BioSample}/{library_type}/{rep}/{Run}.bam.bai"
     shell:
         "samtools index {input} {output} 2>{log.logfile}"
 
