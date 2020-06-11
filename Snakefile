@@ -27,8 +27,8 @@ wildcard_constraints:
     resolution="\d+"
 
 ##### build targets #####
-rule all:
-    input:
+#rule all:
+#    input:
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
 
@@ -40,8 +40,8 @@ rule all_trim:
 
 rule all_align:
     input:
-        expand("samtools/rmdup/pe/{file}.bam.bai",
-                file = make_targets_from_runTable(runTable))
+        expand("samtools/rmdup/pe/{file}.bam.bai", file = make_targets_from_runTable(runTable))
+
 
 ##### load additional workflow rules #####
 include: "rules/fastp.smk"
