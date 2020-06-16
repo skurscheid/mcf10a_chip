@@ -243,7 +243,7 @@ rule deeptools_plotProfile:
         numPlotsPerRow = config['params']['deeptools']['plotProfile']['numPlotsPerRow'],
         colors = config['params']['deeptools']['plotProfile']['colors'],
         plotType = 'se',
-        regionsLabel = config['params']['deeptools']['regionsLabel']
+        regionsLabel = config['params']['deeptools']['regionsLabel'],
         yMin = -2.5,
         yMax = 4.5
     input:

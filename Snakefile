@@ -51,3 +51,4 @@ rule all_multiBamSummary:
 ##### load additional workflow rules #####
 include: "rules/fastp.smk"
 include: "rules/align.smk"
+include: "rules/deeptools.smk"

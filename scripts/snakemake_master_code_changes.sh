@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -P pb97
+#PBS -P zi26
 #PBS -l walltime=48:00:00
 #PBS -l wd
-#PBS -q biodev
+#PBS -q normal
 #PBS -e /home/150/sxk150/qsub_error
 #PBS -o /home/150/sxk150/qsub_out
 #PBS -l ncpus=1
@@ -15,9 +15,9 @@ target=${cli_target}
 
 source ~/.bashrc
 
-/home/150/sxk150/miniconda3/envs/snakemake/bin/snakemake -s /home/150/sxk150/mcf10a_hic/Snakefile\
-    -R `/home/150/sxk150/mcf10a_hic/scripts/cli_snakemake.sh ${target} --lc`\
-    --configfile /home/150/sxk150/mcf10a_hic/config.yaml\
+/home/150/sxk150/miniconda3/envs/snakemake/bin/snakemake -s /home/150/sxk150/mcf10a_chip/Snakefile\
+    -R `/home/150/sxk150/mcf10a_chip/scripts/cli_snakemake.sh ${target} --lc`\
+    --configfile /home/150/sxk150/mcf10a_chip/config.yaml\
 	--use-conda\
 	--cluster "qsub -P {cluster.P}\
                     -l ncpus={threads} \
@@ -32,11 +32,11 @@ source ~/.bashrc
                     -e {cluster.error_out_dir} \
                     -o {cluster.std1_out_dir}" \
 	--jobs 100\
-	-d ~/data/mcf10a-hic\
+	-d ~/data/mcf10a-hic/ChIP\
 	--rerun-incomplete \
     --local-cores 1\
-	--cluster-config /home/150/sxk150/mcf10a_hic/cluster.json\
-    --config rest_enzyme=DpnII_HinfI machine=gadi\
+	--cluster-config /home/150/sxk150/mcf10a_chip/cluster.json\
+    --config machine=gadi\
     --keep-going\
 	-pr
 
