@@ -16,6 +16,7 @@ configfile: "config.yaml"
 
 runTable = pd.read_csv("ChIPRunTable.csv", sep = ",")
 machine = config['machine']
+config['project'] = 'mcf10a_chip'
 
 ##### load additional functions #####
 
@@ -41,6 +42,10 @@ rule all_trim:
 rule all_align:
     input:
         expand("samtools/rmdup/pe/{file}.bam.bai", file = make_targets_from_runTable(runTable))
+
+rule all_multiBamSummary:
+    input:
+        expand('deeptools/multiBamSummary/{aggregate}.npz', aggregate = list(runTable.aggregate_column.unique()))
 
 
 ##### load additional workflow rules #####

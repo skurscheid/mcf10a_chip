@@ -13,3 +13,9 @@ params:
       gdu: "/home/skurscheid/Data/References/Genomes/Homo_sapiens/GRCh38_ensembl84/canonical/index/hg38_ensembl84"
       gadi: "/scratch/kv78/References/Genomes/Homo_sapiens/GRCh38_ensembl84/canonical/index/hg38_ensembl84"
   fastp: ""
+  mcf10a_chip:
+    runTable:
+      file: 'ChIPRunTable.csv'
+      selected_columns: ['BioSample', 'aggregate_column', 'Run']
+      aggregate_column: 'aggregate_column'
+      chip_input_value: 'none'
