@@ -19,3 +19,24 @@ params:
       selected_columns: ['BioSample', 'aggregate_column', 'Run']
       aggregate_column: 'aggregate_column'
       chip_input_value: 'none'
+  deeptools:
+    annotation_dir:
+      gadi: '/home/150/sxk150/data/PromoterSeqCap/annotations/'
+    genome_size:
+      GRCh37_hg19_UCSC: 2864785220
+    binSize : 30
+    smoothLength : 10
+    normalizeUsing : 'RPKM'
+    referencePoint: 'center'
+    beforeRegionStartLength : 1000
+    afterRegionStartLength: 1000
+    sortRegions : 'keep'
+    plotProfile:
+      numPlotsPerRow : 1
+      colors: "\"#ff00dbff\" \"#4900ffff\" \"#0092ffff\" \"#00ff92ff\" \"#49ff00ff\" \"#ffdb00ff\" \"#ff0000ff\""
+    regionsLabel:  ["cluster_7", "cluster_6", "cluster_5", "cluster_4", "cluster_3", "cluster_2", "cluster_1"]
+    regionsFiles:
+      Fig1A: ["Fig1A_cluster_7.bed", "Fig1A_cluster_6.bed", "Fig1A_cluster_5.bed", "Fig1A_cluster_4.bed", "Fig1A_cluster_3.bed", "Fig1A_cluster_2.bed", "Fig1A_cluster_1.bed"]
+      Fig1B: ["Fig1B_cluster_7.bed", "Fig1B_cluster_6.bed", "Fig1B_cluster_5.bed", "Fig1B_cluster_4.bed", "Fig1B_cluster_3.bed", "Fig1B_cluster_2.bed", "Fig1B_cluster_1.bed"]
+      Fig1C: ["Fig1C_cluster_7.bed", "Fig1C_cluster_6.bed", "Fig1C_cluster_5.bed", "Fig1C_cluster_4.bed", "Fig1C_cluster_3.bed", "Fig1C_cluster_2.bed", "Fig1C_cluster_1.bed"]
+      Fig1D: ["Fig1D_cluster_7.bed", "Fig1D_cluster_6.bed", "Fig1D_cluster_5.bed", "Fig1D_cluster_4.bed", "Fig1D_cluster_3.bed", "Fig1D_cluster_2.bed", "Fig1D_cluster_1.bed"]
