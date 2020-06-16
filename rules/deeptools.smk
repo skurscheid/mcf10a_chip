@@ -103,11 +103,11 @@ rule deeptools_plotCorrelation:
         "deeptools"
     params:
     log:
-        logfile = "logs/deeptools_plotCorrelation/{cell_line}.log"
+        logfile = "logs/deeptools_plotCorrelation/{aggregate}.log"
     input:
         rules.deeptools_multiBamSummary.output.npz
     output:
-        png = "deeptools/plotCorrelation/{cell_line}_heatmap.png"
+        png = "deeptools/plotCorrelation/{aggregate}_heatmap.png"
     shell:
         """
             plotCorrelation -in {input} --whatToPlot heatmap --corMethod pearson -o {output}
