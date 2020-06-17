@@ -43,9 +43,9 @@ rule all_align:
     input:
         expand("samtools/rmdup/pe/{file}.bam.bai", file = make_targets_from_runTable(runTable))
 
-rule all_multiBamSummary:
+rule all_plotCorrelation:
     input:
-        expand('deeptools/multiBamSummary/{aggregate}.npz', aggregate = list(runTable.aggregate_column.unique()))
+        expand('deeptools/plotCorrelation/{aggregate}.npz', aggregate = list(runTable.aggregate_column.unique()))
 
 
 ##### load additional workflow rules #####
