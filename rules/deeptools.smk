@@ -88,7 +88,6 @@ rule deeptools_multiBamSummary:
             multiBamSummary bins --bamfiles {input}\
                                  --numberOfProcessors {threads}\
                                  --labels {params.labels}\
-                                 --extendReads {params.extendReads}\
                                  --outFileName {output.npz} 2>{log.logfile}
         """
 
