@@ -45,7 +45,9 @@ rule all_align:
 
 rule all_plotCorrelation:
     input:
-        expand('deeptools/plotCorrelation/{aggregate}.npz', aggregate = list(runTable.aggregate_column.unique()))
+        expand('deeptools/plotCorrelation/{aggregate}_heatmap.{suffix}',
+                aggregate = list(runTable.aggregate_column.unique()),
+                suffix = 'png')
 
 
 ##### load additional workflow rules #####
