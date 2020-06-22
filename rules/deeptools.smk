@@ -123,24 +123,22 @@ rule deeptools_bamCoverage:
     group:
         "deeptools"
     params:
-        extendReads = 200,
         binSize = config['params']['deeptools']['binSize'],
         smoothLength = config['params']['deeptools']['smoothLength'],
-        effectiveGenomeSize = config['params']['deeptools']['genome_size']['GRCh37_hg19_UCSC'],
+        effectiveGenomeSize = config['params']['deeptools']['genome_size']['GRCh38'],
         normalizeUsing = config['params']['deeptools']['normalizeUsing']
     log:
-        logfile = "logs/deeptools_bamCoverage/{cell_line}/{chip_antibody}/{library_type}/{run}.log"
+        logfile = "logs/deeptools_bamCoverage/{BioSample}/{library_type}/{rep}/{Run}.log"
     input:
         rules.bam_rmdup.output
     output:
-        "deeptools/bamCoverage/{cell_line}/{chip_antibody}/{library_type}/{run}.bw"
+        "deeptools/bamCoverage/{BioSample}/{library_type}/{rep}/{Run}.bw"
     shell:
         """
             bamCoverage -b {input}\
                         --numberOfProcessors {threads}\
                         --effectiveGenomeSize {params.effectiveGenomeSize}\
                         --normalizeUsing {params.normalizeUsing}\
-                        --extendReads {params.extendReads}\
                         --binSize {params.binSize}\
                         --smoothLength {params.smoothLength}\
                         --outFileName {output} 2>{log.logfile}

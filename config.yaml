@@ -24,6 +24,7 @@ params:
       gadi: '/home/150/sxk150/data/PromoterSeqCap/annotations/'
     genome_size:
       GRCh37_hg19_UCSC: 2864785220
+      GRCh38: 2913022398
     binSize : 30
     smoothLength : 10
     normalizeUsing : 'RPKM'
