@@ -49,6 +49,10 @@ rule all_plotCorrelation:
                 aggregate = list(runTable.aggregate_column.unique()),
                 suffix = 'png')
 
+rule all_bamCoverage:
+    input:
+        expand("deeptools/bamCoverage/{file}.bw", file = make_targets_from_runTable(runTable))
+
 
 ##### load additional workflow rules #####
 include: "rules/fastp.smk"
